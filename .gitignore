@@ -15,7 +15,7 @@
 local.properties
 
 # Ignore gradle.properties
-gradle.properties
+#gradle.properties
 
 # Ignore macOS system files
 .DS_Store
