@@ -1,0 +1,5 @@
+<resources>
+    <string name="action_cancel">Cancel</string>
+    <string name="save_copy">Save Copy</string>
+    <string name="app_name">ComposeCropper</string>
+</resources>
