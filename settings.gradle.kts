@@ -22,8 +22,8 @@ dependencyResolutionManagement {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
             credentials {
-                username ="krishnan-cce"
-                password = "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"
+                username = System.getenv("GIT_USERNAME")
+                password = System.getenv("GIT_PASSWORD")
             }
         }
     }

@@ -80,7 +80,6 @@ dependencies {
 
     implementation(project(":libs:imagePicker"))
 
-//    implementation ("com.github.krishnan-cce:kl_compose_image_picker:1.0.1")
-//    implementation("com.github.krishnan-cce:kl_compose_image_picker:1.0.0")
+//    implementation("com.github.krishnan-cce:tyson-image-picker:1.0.0")
 
 }

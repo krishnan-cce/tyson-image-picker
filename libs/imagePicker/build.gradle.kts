@@ -85,8 +85,8 @@ afterEvaluate {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
                 credentials {
-                    username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                    password = project.findProperty("gpr.token") as String? ?: System.getenv("TOKEN")
+                    username = System.getenv("GIT_USERNAME")
+                    password = System.getenv("GIT_PASSWORD")
                 }
             }
         }
