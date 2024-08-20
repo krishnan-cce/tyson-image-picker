@@ -18,14 +18,14 @@ dependencyResolutionManagement {
         mavenCentral()
         mavenLocal()
         maven {url = uri("https://jitpack.io") }
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
-            credentials {
-                username = System.getenv("GIT_USERNAME")
-                password = System.getenv("GIT_PASSWORD")
-            }
-        }
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
+//            credentials {
+//                username = System.getenv("GIT_USERNAME")
+//                password = System.getenv("GIT_PASSWORD")
+//            }
+//        }
     }
 }
 

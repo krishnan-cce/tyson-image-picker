@@ -80,16 +80,16 @@ afterEvaluate {
             }
         }
 
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
-                credentials {
-                    username = System.getenv("GIT_USERNAME")
-                    password = System.getenv("GIT_PASSWORD")
-                }
-            }
-        }
+//        repositories {
+//            maven {
+//                name = "GitHubPackages"
+//                url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
+//                credentials {
+//                    username = System.getenv("GIT_USERNAME")
+//                    password = System.getenv("GIT_PASSWORD")
+//                }
+//            }
+//        }
 
     }
 }
