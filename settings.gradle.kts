@@ -20,7 +20,7 @@ dependencyResolutionManagement {
         maven {url = uri("https://jitpack.io") }
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/krishnan-cce/kl_compose_image_picker")
+            url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
             credentials {
                 username ="krishnan-cce"
                 password = "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"

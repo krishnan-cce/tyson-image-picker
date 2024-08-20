@@ -75,7 +75,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.krishnan-cce"
-                artifactId = "kl_compose_image_picker"
+                artifactId = "tyson-image-picker"
                 version = "1.0.0"
             }
         }
@@ -83,7 +83,7 @@ afterEvaluate {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/krishnan-cce/kl_compose_image_picker")
+                url = uri("https://maven.pkg.github.com/krishnan-cce/tyson-image-picker")
                 credentials {
                     username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                     password = project.findProperty("gpr.token") as String? ?: System.getenv("TOKEN")

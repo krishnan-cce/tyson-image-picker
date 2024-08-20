@@ -1,6 +1,8 @@
 package com.udyata.imagepicker.presentation.GalleryPicker
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -57,7 +59,7 @@ import com.udyata.imagepicker.presentation.GalleryPicker.components.CheckBox
 import com.udyata.imagepicker.presentation.GalleryPicker.components.DebounceImageLoader
 import kotlinx.coroutines.launch
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun GalleryPhotoScreen(

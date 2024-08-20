@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.time.temporal.WeekFields
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 class GalleryViewModel(
     private val getPhotosUseCase: GetPhotosUseCase
 ) : ViewModel() {
@@ -55,6 +55,7 @@ class GalleryViewModel(
             }
         }
     }
+
 
 
     private suspend fun processPhotos(photos: List<Photo>, filter: PhotoFilter, sort: PhotoSort): List<PhotoGroup> {
