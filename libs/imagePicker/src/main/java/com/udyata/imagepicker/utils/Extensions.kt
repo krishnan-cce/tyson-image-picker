@@ -77,7 +77,7 @@ object DateUtils {
     fun String.toCustomMonthlyFormat(): String {
         val parts = this.split("-")
         val year = parts[0]
-        val month = Month.valueOf(parts[1].toUpperCase(Locale.getDefault())).getDisplayName(
+        val month = Month.valueOf(parts[1].uppercase(Locale.getDefault())).getDisplayName(
             TextStyle.FULL, Locale.getDefault())
         return "$month, $year"
     }
