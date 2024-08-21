@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -53,6 +54,7 @@ import com.udyata.composegalley.presentation.PhotoEvent
 import com.udyata.composegalley.presentation.SorterRows
 import com.udyata.composegalley.presentation.galleryphotoscreen.SelectionSheet
 import com.udyata.imagepicker.data.model.Photo
+import com.udyata.imagepicker.data.model.PhotoSort
 import com.udyata.imagepicker.helper_libs.pinchzoomgrid.PinchZoomGridLayout
 import com.udyata.imagepicker.helper_libs.pinchzoomgrid.rememberPinchZoomGridState
 import com.udyata.imagepicker.presentation.GalleryPicker.components.CheckBox
@@ -65,14 +67,12 @@ import kotlinx.coroutines.launch
 fun GalleryPhotoScreen(
     viewModel: GalleryViewModel,
     onSelectImage: (Uri) -> Unit,
-    isMultiSelection:Boolean = false
+    isMultiSelection: Boolean = false
 ) {
-
-
     val scope = rememberCoroutineScope()
-
     val groupedPhotos by viewModel.groupedPhotos.collectAsState()
     val photos by viewModel.photos.collectAsState()
+    val selectedSortOrder by viewModel.selectedSort.collectAsState()
 
     val selectedPhotos = remember { mutableStateListOf<Photo>() }
 
@@ -98,9 +98,7 @@ fun GalleryPhotoScreen(
                 scrollBehavior = scrollBehavior,
                 title = {},
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                    }
+
                 }
             )
         },
@@ -135,15 +133,25 @@ fun GalleryPhotoScreen(
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = "Gallery Photos")
+                                    val title = when (selectedSortOrder) {
+                                        PhotoSort.All -> "Gallery Photos"
+                                        PhotoSort.Weekly -> "Weekly Photos"
+                                        PhotoSort.Monthly -> "Monthly Photos"
+                                        PhotoSort.Yearly -> "Yearly Photos"
+                                        else  -> "Gallery Photos"
+                                    }
+                                    Text(text = title)
                                 }
                             }
                         }
 
                         item(span = { GridItemSpan(this.maxLineSpan) }) {
-                            SorterRows(modifier = Modifier) { sort ->
-                                viewModel.onEvent(PhotoEvent.UpdateSort(sort))
-                            }
+                            SorterRows(
+                                selectedSort = selectedSortOrder,
+                                onSortSelected = { sort ->
+                                    viewModel.onEvent(PhotoEvent.UpdateSort(sort))
+                                }
+                            )
                         }
 
                         groupedPhotos.forEach { group ->
@@ -151,7 +159,9 @@ fun GalleryPhotoScreen(
 
                             item(span = { GridItemSpan(this.maxLineSpan) }) {
                                 Surface(
-                                    modifier = Modifier.padding(8.dp).pinchItem(key = "stickies"),
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .pinchItem(key = "stickies"),
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -163,7 +173,7 @@ fun GalleryPhotoScreen(
                                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
                                         )
 
-                                        if (isMultiSelection){
+                                        if (isMultiSelection) {
                                             CheckBox(
                                                 isChecked = isGroupSelected,
                                                 onCheck = {
@@ -176,10 +186,10 @@ fun GalleryPhotoScreen(
                                                 }
                                             )
                                         }
-
                                     }
                                 }
                             }
+
 
                             items(group.body, key = { it.photo.id }) { body ->
                                 DebounceImageLoader(
@@ -193,7 +203,7 @@ fun GalleryPhotoScreen(
                                             } else {
                                                 selectedPhotos.add(photo)
                                             }
-                                        }else{
+                                        } else {
                                             onSelectImage(body.photo.uri)
                                         }
                                     },
@@ -219,12 +229,14 @@ fun GalleryPhotoScreen(
                                 .background(MaterialTheme.colorScheme.background)
                                 .zIndex(1f)
                         ) {
-                            SorterRows { sort ->
-                                viewModel.onEvent(PhotoEvent.UpdateSort(sort))
-                            }
+                            SorterRows(
+                                selectedSort = selectedSortOrder,
+                                onSortSelected = { sort ->
+                                    viewModel.onEvent(PhotoEvent.UpdateSort(sort))
+                                }
+                            )
                         }
                     }
-
 
                     SelectionSheet(
                         modifier = Modifier

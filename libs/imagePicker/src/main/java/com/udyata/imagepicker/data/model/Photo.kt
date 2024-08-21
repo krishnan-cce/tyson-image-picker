@@ -1,3 +1,5 @@
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+
 package com.udyata.imagepicker.data.model
 
 import android.net.Uri
@@ -12,14 +14,13 @@ import java.util.Date
 sealed class PhotoSection {
     data class Header(val date: String) : PhotoSection()
     data class Body(val photo: Photo) : PhotoSection()
-    object Footer : PhotoSection()
+    data class Footer(val remainingCount: Int) : PhotoSection()
 }
 
-@Immutable
 data class PhotoGroup(
     val header: PhotoSection.Header,
     val body: List<PhotoSection.Body>,
-    val footer: PhotoSection.Footer
+    val footer: PhotoSection.Footer? = null
 )
 
 
@@ -73,11 +74,20 @@ sealed class PhotoFilter {
     }
 }
 
-sealed class PhotoSort(val sortOrder: String, val comparator: Comparator<Photo>) {
-    data object DateTakenAsc : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} ASC", compareBy { it.dateTaken })
-    data object DateTakenDesc : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken })
-    data object All : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken })
-    data object Weekly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken })
-    data object Monthly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken })
-    data object Yearly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken })
+sealed class PhotoSort(val sortOrder: String, val comparator: Comparator<Photo>, val name: String) {
+    data object DateTakenAsc : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} ASC", compareBy { it.dateTaken }, "Date Taken Asc")
+    data object DateTakenDesc : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken }, "Date Taken Desc")
+    data object All : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken }, "All")
+    data object Weekly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken }, "Weekly")
+    data object Monthly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken }, "Monthly")
+    data object Yearly : PhotoSort("${MediaStore.Images.Media.DATE_TAKEN} DESC", compareByDescending { it.dateTaken }, "Yearly")
 }
+val PhotoSort.name: String
+    get() = when (this) {
+        is PhotoSort.DateTakenAsc -> "Date Taken Asc"
+        is PhotoSort.DateTakenDesc -> "Date Taken Desc"
+        is PhotoSort.All -> "All"
+        is PhotoSort.Weekly -> "Weekly"
+        is PhotoSort.Monthly -> "Monthly"
+        is PhotoSort.Yearly -> "Yearly"
+    }
