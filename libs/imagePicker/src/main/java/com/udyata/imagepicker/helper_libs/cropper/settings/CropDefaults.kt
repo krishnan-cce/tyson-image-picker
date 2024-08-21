@@ -90,7 +90,7 @@ data class CropProperties internal constructor(
     val handleSize: Float,
     val contentScale: ContentScale,
     val cropOutlineProperty: CropOutlineProperty,
-    val aspectRatio: AspectRatio,
+    var aspectRatio: AspectRatio,
     val overlayRatio: Float,
     val pannable: Boolean,
     val fling: Boolean,

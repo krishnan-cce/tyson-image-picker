@@ -243,25 +243,6 @@ class EditViewModel (
         }
     }
 
-//    private fun addModification(modification: ImageModification, updateFilters: Boolean = false) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            modification.croppedImage?.let {
-//                updateImage(it, updateFilters = updateFilters)
-//            }
-//        }
-//    }
-
-//    private fun removeModification(modification: ImageModification) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            modifications.remove(modification)
-//            modifications.lastOrNull()?.let { mod ->
-//                mod.croppedImage?.let {
-//                    updateImage(it, updateFilters = true)
-//                }
-//            }
-//        }
-//    }
-
     private fun updateImage(
         bitmap: Bitmap,
         isRevertAction: Boolean = false,

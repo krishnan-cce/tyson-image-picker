@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.udyata.imagepicker.helper_libs.cropper.model.AspectRatio
 import com.udyata.imagepicker.helper_libs.cropper.model.OutlineType
 import com.udyata.imagepicker.helper_libs.cropper.model.RectCropShape
+import com.udyata.imagepicker.helper_libs.cropper.model.aspectRatios
 import com.udyata.imagepicker.helper_libs.cropper.settings.CropDefaults
 import com.udyata.imagepicker.helper_libs.cropper.settings.CropOutlineProperty
 import com.udyata.imagepicker.presentation.EditActivity.components.EditBottomBar
@@ -49,9 +53,9 @@ import com.udyata.imagepicker.presentation.EditActivity.components.EditId
 import com.udyata.imagepicker.presentation.EditActivity.components.EditOption
 import com.udyata.imagepicker.presentation.EditActivity.components.EditOptions
 import com.udyata.imagepicker.presentation.EditActivity.components.MoreSelector
-import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.Adjustment
 import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.AdjustmentFilter
 import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.AdjustmentSelector
+import com.udyata.imagepicker.presentation.EditActivity.components.aspectratio.AnimatedAspectRatioSelection
 import com.udyata.imagepicker.presentation.EditActivity.components.filters.FilterSelector
 import com.udyata.imagepicker.presentation.EditActivity.components.filters.HorizontalScrubber
 import com.udyata.imagepicker.presentation.EditActivity.crop.CropOptions
@@ -68,7 +72,8 @@ fun EditScreen(
     onNavigateUp: () -> Unit = {},
     onSaveResult: (Uri) -> Unit
 ) {
-     val image by viewModel.image.collectAsState()
+    val image by viewModel.image.collectAsState()
+    val handleSize: Float = LocalDensity.current.run { 20.dp.toPx() }
     val mediaRef by viewModel.mediaRef.collectAsState()
     var crop by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
@@ -113,6 +118,35 @@ fun EditScreen(
     val selectedAdjFilter = remember {
         mutableStateOf<Pair<AdjustmentFilter, Float>?>(null)
     }
+
+    var showAspectRatioSelection by remember { mutableStateOf(false) }
+
+    var cropProperties by remember {
+        mutableStateOf(
+            CropDefaults.properties(
+                aspectRatio = AspectRatio.Original,
+                cropOutlineProperty = CropOutlineProperty(
+                    outlineType = OutlineType.RoundedRect,
+                    cropOutline = RectCropShape(
+                        id = 0,
+                        title = OutlineType.RoundedRect.name
+                    )
+                ),
+                handleSize = handleSize,
+                maxZoom = 5f,
+                overlayRatio = 1f,
+                pannable = true,
+                fling = false,
+                rotatable = false
+            )
+        )
+    }
+    var initialSelectedIndex by remember { mutableIntStateOf(aspectRatios.indexOfFirst {
+        it.aspectRatio == cropProperties.aspectRatio
+    }.takeIf { it != -1 } ?: 0) }
+
+
+
 //    val selectedAdjFilter = remember {
 //        val noneFilter = EditViewModel.adjustmentFilters.find { it.tag == Adjustment.NONE }
 //        mutableStateOf(noneFilter?.let { it to it.defaultValue })
@@ -185,20 +219,7 @@ fun EditScreen(
                             .background(Color.Black),
                         bitmap = imageBitmap,
                         cropEnabled = cropEnabled,
-                        cropProperties = CropDefaults.properties(
-                            cropOutlineProperty = CropOutlineProperty(
-                                outlineType = OutlineType.RoundedRect,
-                                cropOutline = RectCropShape(
-                                    id = 0,
-                                    title = OutlineType.RoundedRect.name
-                                )
-                            ),
-                            maxZoom = 5f,
-                            overlayRatio = 1f,
-                            pannable = true,
-                            fling = false,
-                            rotatable = false
-                        ),
+                        cropProperties = cropProperties,
                         crop = crop,
                         onCropStart = {
                             saving = true
@@ -241,22 +262,39 @@ fun EditScreen(
             ) { page ->
                 when (page) {
                     0 -> {
-                        Log.d("EditScreen", "0")
-                        CropOptions(
-                            onMirrorPressed = {
-                                viewModel.flipHorizontally()
-                            },
-                            onRotatePressed = {
-                                //cropRotation += 90f
-                                viewModel.addAngle(90f)
-                            },
-                            onAspectRationPressed = {
-
-                            },
-                            onCropPressed = {
-                                crop = true
+                        Column {
+                            AnimatedVisibility(
+                                visible = showAspectRatioSelection,
+                                enter = fadeIn(tween(300)),
+                                exit = fadeOut(tween(300))
+                            ) {
+                                AnimatedAspectRatioSelection(
+                                    initialSelectedIndex = initialSelectedIndex,
+                                    onAspectRatioChange = { index,cropAspectRatio ->
+                                        cropProperties = cropProperties.copy(
+                                            aspectRatio = cropAspectRatio.aspectRatio
+                                        )
+                                        initialSelectedIndex = index
+                                    }
+                                )
                             }
-                        )
+
+                            CropOptions(
+                                onMirrorPressed = {
+                                    viewModel.flipHorizontally()
+                                },
+                                onRotatePressed = {
+                                    //cropRotation += 90f
+                                    viewModel.addAngle(90f)
+                                },
+                                onAspectRationPressed = {
+                                    showAspectRatioSelection = !showAspectRatioSelection
+                                },
+                                onCropPressed = {
+                                    crop = true
+                                }
+                            )
+                        }
                     }
                     1 -> {
                         Column {
