@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -145,13 +146,15 @@ fun GalleryPhotoScreen(
                             }
                         }
 
-                        item(span = { GridItemSpan(this.maxLineSpan) }) {
-                            SorterRows(
-                                selectedSort = selectedSortOrder,
-                                onSortSelected = { sort ->
-                                    viewModel.onEvent(PhotoEvent.UpdateSort(sort))
-                                }
-                            )
+                        if (!showStickyHeader) {
+                            item(span = { GridItemSpan(this.maxLineSpan) }) {
+                                SorterRows(
+                                    selectedSort = selectedSortOrder,
+                                    onSortSelected = { sort ->
+                                        viewModel.onEvent(PhotoEvent.UpdateSort(sort))
+                                    }
+                                )
+                            }
                         }
 
                         groupedPhotos.forEach { group ->
@@ -226,8 +229,8 @@ fun GalleryPhotoScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(start = 8.dp, end = 8.dp)
-                                .background(MaterialTheme.colorScheme.background)
                                 .zIndex(1f)
+                                .background(Color.Transparent)
                         ) {
                             SorterRows(
                                 selectedSort = selectedSortOrder,

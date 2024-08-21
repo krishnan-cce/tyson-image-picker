@@ -33,7 +33,7 @@ class GalleryViewModel(
     private val getPhotosUseCase: GetPhotosUseCase
 ) : ViewModel() {
 
-    private val _selectedSort = MutableStateFlow<PhotoSort>(PhotoSort.DateTakenDesc)
+    private val _selectedSort = MutableStateFlow<PhotoSort>(PhotoSort.All)
     val selectedSort: StateFlow<PhotoSort> = _selectedSort
 
     private val _filter = MutableStateFlow<PhotoFilter>(PhotoFilter.NoFilter)
