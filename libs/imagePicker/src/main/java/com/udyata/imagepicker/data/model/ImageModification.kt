@@ -16,5 +16,6 @@ data class ImageModification(
 data class ImageFilter(
     val name: String = "",
     val filter: GPUImageFilter,
-    val filterPreview: Bitmap
+    val filterPreview: Bitmap,
+    val group: String = "General"
 )
