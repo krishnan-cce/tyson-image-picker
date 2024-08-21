@@ -16,6 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import com.udyata.imagepicker.di.AppModule
 import com.udyata.imagepicker.theme.ComposeCropperTheme
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class EditActivity : ComponentActivity() {
@@ -31,12 +34,9 @@ class EditActivity : ComponentActivity() {
             ComposeCropperTheme(darkTheme = false) {
                 val context = LocalContext.current
 
-                val viewModel = remember {
-                    val request = AppModule.getImageRequest(context)
-                    val loader = AppModule.getImageLoader(context)
-                    val imageRepository = AppModule.provideImageRepository(context)
-                    EditViewModel(request = request, loader = loader, imageRepository = imageRepository)
-                }
+                val viewModel: EditViewModel = viewModel(
+                    factory = EditViewModelFactory(application)
+                )
 
                 LaunchedEffect(true) {
                     viewModel.loadImage(Uri.parse(ImageUri))

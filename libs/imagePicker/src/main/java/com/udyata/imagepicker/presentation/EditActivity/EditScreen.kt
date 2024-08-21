@@ -7,12 +7,15 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -25,10 +28,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,11 +49,17 @@ import com.udyata.imagepicker.presentation.EditActivity.components.EditId
 import com.udyata.imagepicker.presentation.EditActivity.components.EditOption
 import com.udyata.imagepicker.presentation.EditActivity.components.EditOptions
 import com.udyata.imagepicker.presentation.EditActivity.components.MoreSelector
+import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.Adjustment
+import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.AdjustmentFilter
+import com.udyata.imagepicker.presentation.EditActivity.components.adjustments.AdjustmentSelector
+import com.udyata.imagepicker.presentation.EditActivity.components.filters.FilterSelector
+import com.udyata.imagepicker.presentation.EditActivity.components.filters.HorizontalScrubber
 import com.udyata.imagepicker.presentation.EditActivity.crop.CropOptions
 import com.udyata.imagepicker.presentation.EditActivity.crop.Cropper
 import com.udyata.imagepicker.utils.getEditImageCapableApps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,7 +83,7 @@ fun EditScreen(
             ),
             EditOption(
                 title = "Adjust",
-                isEnabled = false,
+                isEnabled = true,
                 id = EditId.ADJUST
             ),
             EditOption(
@@ -99,9 +110,18 @@ fun EditScreen(
     val selectedOption = remember {
         mutableStateOf(options.first())
     }
+    val selectedAdjFilter = remember {
+        mutableStateOf<Pair<AdjustmentFilter, Float>?>(null)
+    }
+//    val selectedAdjFilter = remember {
+//        val noneFilter = EditViewModel.adjustmentFilters.find { it.tag == Adjustment.NONE }
+//        mutableStateOf(noneFilter?.let { it to it.defaultValue })
+//    }
 
     val scope = rememberCoroutineScope(getContext = { Dispatchers.IO })
-     val cropEnabled by remember(selectedOption.value) { mutableStateOf(selectedOption.value.id == EditId.CROP) }
+    val filters by viewModel.filters.collectAsState(context = Dispatchers.IO)
+
+    val cropEnabled by remember(selectedOption.value) { mutableStateOf(selectedOption.value.id == EditId.CROP) }
     val pagerState = rememberPagerState { options.size }
     LaunchedEffect(selectedOption.value.id) {
         pagerState.scrollToPage(
@@ -239,9 +259,75 @@ fun EditScreen(
                         )
                     }
                     1 -> {
+                        Column {
+                            val state =
+                                rememberPagerState(pageCount = EditViewModel.adjustmentFilters::size)
+                            LaunchedEffect(selectedAdjFilter.value) {
+                                selectedAdjFilter.value?.let {
+                                    val index = EditViewModel.adjustmentFilters.indexOf(it.first)
+                                    state.scrollToPage(index)
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = selectedAdjFilter.value != null,
+                                enter = slideInVertically(),
+                                exit = slideOutVertically()
+                            ) {
+                                HorizontalPager(
+                                    state = state,
+                                    userScrollEnabled = false,
+                                ) {
+                                    val adjustment = EditViewModel.adjustmentFilters[it]
+                                    var currentValue by rememberSaveable {
+                                        mutableFloatStateOf(
+                                            selectedAdjFilter.value?.second
+                                                ?: adjustment.defaultValue
+                                        )
+                                    }
+                                    HorizontalScrubber(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        displayValue = { value ->
+                                            (value * 100).roundToInt().toString()
+                                        },
+                                        minValue = remember(adjustment, adjustment::minValue),
+                                        maxValue = remember(adjustment, adjustment::maxValue),
+                                        defaultValue = remember(
+                                            adjustment,
+                                            adjustment::defaultValue
+                                        ),
+                                        allowNegative = remember(adjustment) { adjustment.minValue < 0f },
+                                        currentValue = currentValue,
+                                        onValueChanged = { isScrolling, newValue ->
+                                            scope.launch {
+                                                if (selectedAdjFilter.value != null) {
+                                                    viewModel.addAdjustment(
+                                                        isScrolling,
+                                                        selectedAdjFilter.value!!.first to newValue
+                                                    )
+                                                    currentValue = newValue
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                            }
 
-
+                            AdjustmentSelector(
+                                viewModel = viewModel,
+                                selectedFilter = selectedAdjFilter
+                            )
+                        }
                     }
+
+                    2 -> {
+                        FilterSelector(
+                            filters = filters,
+                            viewModel = viewModel
+                        )
+                    }
+
 
                     4 -> {
                         MoreSelector(

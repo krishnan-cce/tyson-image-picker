@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    implementation("jp.co.cyberagent.android:gpuimage:2.1.0")
+
 
 }
 
