@@ -18,9 +18,11 @@ sealed class PhotoSection {
 }
 
 data class PhotoGroup(
+    val groupId: Int,
     val header: PhotoSection.Header,
     val body: List<PhotoSection.Body>,
-    val footer: PhotoSection.Footer? = null
+    val footer: PhotoSection.Footer? = null,
+    val allPhotos: List<Photo>
 )
 
 

@@ -1,11 +1,8 @@
 package com.udyata.imagepicker.presentation.GalleryPicker
 
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -16,11 +13,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import com.udyata.composegalley.presentation.GalleryViewModel
 import com.udyata.imagepicker.di.AppModule
+import com.udyata.imagepicker.navigation.Screen
 import com.udyata.imagepicker.presentation.EditActivity.EditActivity
+import com.udyata.imagepicker.presentation.RemainingPhotosScreen.RemainingPhotosScreen
 import com.udyata.imagepicker.theme.ComposeCropperTheme
 import com.udyata.imagepicker.utils.newImageLoader
 
@@ -40,6 +44,7 @@ class GalleryPickerActivity : ComponentActivity() {
             setSingletonImageLoaderFactory(::newImageLoader)
             ComposeCropperTheme(darkTheme = false) {
                 val context = LocalContext.current
+                val navController = rememberNavController()
 
                 val editActivityLauncher =
                     rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
@@ -64,17 +69,57 @@ class GalleryPickerActivity : ComponentActivity() {
                 }
 
                 // UI content
-                GalleryPhotoScreen(
-                    viewModel = viewModel,
-                    onSelectImage = { uri ->
-                        val intent =
-                            Intent(context, EditActivity::class.java).apply {
-                                putExtra("imageUri", uri.toString())
-                            }
-                        editActivityLauncher.launch(intent)
-                    },
-                    isMultiSelection=isMultiSelection
-                )
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.GalleryPhotoScreen.route
+                ) {
+                    composable(Screen.GalleryPhotoScreen.route) {
+                        GalleryPhotoScreen(
+                            viewModel = viewModel,
+                            onSelectImage = { uri ->
+                                val intent =
+                                    Intent(context, EditActivity::class.java).apply {
+                                        putExtra("imageUri", uri.toString())
+                                    }
+                                editActivityLauncher.launch(intent)
+                            },
+                            isMultiSelection = isMultiSelection,
+                            navController = navController
+                        )
+                    }
+
+                    composable(
+                        route = Screen.RemainingPhotosScreen.route,
+                        arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val groupName = backStackEntry.arguments?.getString("groupName") ?: return@composable
+                        val groupId = backStackEntry.arguments?.getInt("groupId") ?: return@composable
+                        RemainingPhotosScreen(
+                            groupId = groupId,
+                            groupName = groupName,
+                            viewModel = viewModel,
+                            onSelectImage = { uri ->
+                                val intent =
+                                    Intent(context, EditActivity::class.java).apply {
+                                        putExtra("imageUri", uri.toString())
+                                    }
+                                editActivityLauncher.launch(intent)
+                            },
+                            navController = navController
+                        )
+                    }
+                }
+//                GalleryPhotoScreen(
+//                    viewModel = viewModel,
+//                    onSelectImage = { uri ->
+//                        val intent =
+//                            Intent(context, EditActivity::class.java).apply {
+//                                putExtra("imageUri", uri.toString())
+//                            }
+//                        editActivityLauncher.launch(intent)
+//                    },
+//                    isMultiSelection=isMultiSelection
+//                )
             }
         }
     }

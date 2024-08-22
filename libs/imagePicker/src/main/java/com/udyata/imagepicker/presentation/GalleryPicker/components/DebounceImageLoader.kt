@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil3.compose.EqualityDelegate
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
@@ -37,6 +38,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.size.Scale
 import com.udyata.imagepicker.data.model.Photo
+import com.udyata.imagepicker.navigation.Screen
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -46,16 +48,21 @@ fun DebounceImageLoader(
     photo: Photo,
     isSelected: Boolean,
     onPhotoClick: (Photo) -> Unit,
-    onPhotoLongClick: (Photo) -> Unit
+    onPhotoLongClick: (Photo) -> Unit,
+    navController: NavHostController,
+    groupName: String
 ) {
     if (photo.id < 0L) {
+        val groupId = extractGroupIdFromPhoto(photo)
+
+
         Box(
             modifier = modifier
                 .aspectRatio(1f)
                 .padding(2.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
-                .clickable { onPhotoClick(photo) },
+                .clickable { navController.navigate(Screen.RemainingPhotosScreen.createRoute(groupId,groupName)) },
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -161,4 +168,14 @@ class MediaEqualityDelegate : EqualityDelegate {
     override fun equals(self: Any?, other: Any?): Boolean = true
 
     override fun hashCode(self: Any?): Int = 31
+}
+
+fun extractGroupIdFromPhoto(photo: Photo): Int {
+    // The dummy photo's id is negative, so we reverse the calculation to get the groupId
+    return if (photo.id < 0L) {
+        ((-photo.id - 1) / 1000L).toInt()
+    } else {
+        // If the photo ID is not negative, it's not a dummy photo, so handle accordingly
+        -1 // or throw an exception / handle error case
+    }
 }

@@ -256,7 +256,6 @@ fun EditScreen(
                     .wrapContentHeight()
                     .animateContentSize(),
                 userScrollEnabled = false,
-                beyondBoundsPageCount = 1,
                 verticalAlignment = Alignment.Bottom,
                 state = pagerState
             ) { page ->

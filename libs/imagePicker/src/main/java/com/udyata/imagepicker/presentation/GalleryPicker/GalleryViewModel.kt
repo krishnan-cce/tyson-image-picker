@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,18 +93,17 @@ class GalleryViewModel(
             }
 
             grouped.entries.toList().mapIndexed { groupIndex, (key, photos) ->
+                // Determine how many photos to display and how many are remaining
                 val (displayedPhotos, remainingCount) = when (sort) {
                     PhotoSort.Weekly, PhotoSort.Monthly, PhotoSort.Yearly -> photos.take(10) to (photos.size - 10)
-                    else -> photos to 0
+                    else -> photos to 0  // Show all photos for "All" sort
                 }
 
                 val bodyItems = displayedPhotos.map { PhotoSection.Body(it) }.toMutableList()
 
-                 if (remainingCount > 0) {
+                // Add a dummy item to represent the remaining photos count if needed
+                if (remainingCount > 0) {
                     val dummyPhotoId = -1L * ((groupIndex * 1000L) + 1L)
-
-                    Log.d("GalleryDebug", "GroupIndex: $groupIndex, Key: $key, RemainingCount: $remainingCount, DummyPhotoId: $dummyPhotoId")
-
 
                     val dummyPhoto = Photo(
                         id = dummyPhotoId,
@@ -117,19 +117,24 @@ class GalleryViewModel(
                         mimeType = ""
                     )
                     bodyItems.add(PhotoSection.Body(dummyPhoto))
-                }else {
-                    Log.d("GalleryDebug", "No remaining count for GroupIndex: $groupIndex, Key: $key")
                 }
 
                 PhotoGroup(
+                    groupId = groupIndex,
                     header = PhotoSection.Header(key),
                     body = bodyItems,
-                    footer = null
+                    allPhotos = photos // Store all photos in this group for future use
                 )
             }
         }
     }
 
+
+    fun getPhotosForGroup(groupId: Int): StateFlow<List<Photo>> {
+        return groupedPhotos.map { groups ->
+            groups.find { it.groupId == groupId }?.allPhotos ?: emptyList()
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    }
 
 
 

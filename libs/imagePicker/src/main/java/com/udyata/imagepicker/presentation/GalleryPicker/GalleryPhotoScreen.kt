@@ -23,16 +23,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -50,6 +47,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.udyata.composegalley.presentation.GalleryViewModel
 import com.udyata.composegalley.presentation.PhotoEvent
 import com.udyata.composegalley.presentation.SorterRows
@@ -68,7 +66,8 @@ import kotlinx.coroutines.launch
 fun GalleryPhotoScreen(
     viewModel: GalleryViewModel,
     onSelectImage: (Uri) -> Unit,
-    isMultiSelection: Boolean = false
+    isMultiSelection: Boolean = false,
+    navController: NavHostController
 ) {
     val scope = rememberCoroutineScope()
     val groupedPhotos by viewModel.groupedPhotos.collectAsState()
@@ -196,6 +195,7 @@ fun GalleryPhotoScreen(
 
                             items(group.body, key = { it.photo.id }) { body ->
                                 DebounceImageLoader(
+                                    groupName = group.header.date,
                                     modifier = Modifier.pinchItem(key = body),
                                     photo = body.photo,
                                     isSelected = selectedPhotos.contains(body.photo),
@@ -214,7 +214,8 @@ fun GalleryPhotoScreen(
                                         if (!selectedPhotos.contains(photo) && isMultiSelection) {
                                             selectedPhotos.add(photo)
                                         }
-                                    }
+                                    },
+                                    navController = navController
                                 )
                             }
 
