@@ -22,9 +22,11 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
@@ -56,6 +58,7 @@ import com.udyata.imagepicker.data.model.Photo
 import com.udyata.imagepicker.data.model.PhotoSort
 import com.udyata.imagepicker.helper_libs.pinchzoomgrid.PinchZoomGridLayout
 import com.udyata.imagepicker.helper_libs.pinchzoomgrid.rememberPinchZoomGridState
+import com.udyata.imagepicker.navigation.Screen
 import com.udyata.imagepicker.presentation.GalleryPicker.components.CheckBox
 import com.udyata.imagepicker.presentation.GalleryPicker.components.DebounceImageLoader
 import kotlinx.coroutines.launch
@@ -98,7 +101,9 @@ fun GalleryPhotoScreen(
                 scrollBehavior = scrollBehavior,
                 title = {},
                 actions = {
-
+//                    IconButton(onClick = { navController.navigate(Screen.GalleryAlbumScreen.route) }) {
+//                        Icon(imageVector = Icons.Default.Album, contentDescription = "Album")
+//                    }
                 }
             )
         },

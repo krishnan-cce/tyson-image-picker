@@ -8,6 +8,7 @@ import com.udyata.imagepicker.data.repository.ImageRepository
 import com.udyata.imagepicker.data.repository.PhotoRepository
 import com.udyata.imagepicker.domain.repository.ImageRepositoryImpl
 import com.udyata.imagepicker.domain.repository.PhotoRepositoryImpl
+import com.udyata.imagepicker.domain.usecase.GetAlbumsUseCase
 import com.udyata.imagepicker.domain.usecase.GetPhotosUseCase
 
 object AppModule {
@@ -31,6 +32,10 @@ object AppModule {
 
     fun provideGetPhotosUseCase(photoRepository: PhotoRepository): GetPhotosUseCase {
         return GetPhotosUseCase(photoRepository)
+    }
+
+    fun provideGetAlbumsUseCase(photoRepository: PhotoRepository): GetAlbumsUseCase {
+        return GetAlbumsUseCase(photoRepository)
     }
 
 }

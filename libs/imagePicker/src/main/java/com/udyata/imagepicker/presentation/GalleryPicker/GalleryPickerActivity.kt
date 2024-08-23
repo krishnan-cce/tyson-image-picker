@@ -24,6 +24,10 @@ import com.udyata.composegalley.presentation.GalleryViewModel
 import com.udyata.imagepicker.di.AppModule
 import com.udyata.imagepicker.navigation.Screen
 import com.udyata.imagepicker.presentation.EditActivity.EditActivity
+import com.udyata.imagepicker.presentation.GalleryAlbumScreen.GalleryAlbumScreen
+import com.udyata.imagepicker.presentation.GalleryAlbumScreen.GalleryAlbumViewModel
+import com.udyata.imagepicker.presentation.GalleryAlbumScreen.RemainingAlbumViewModel
+import com.udyata.imagepicker.presentation.GalleryAlbumScreen.RemainingAlbumsScreen
 import com.udyata.imagepicker.presentation.RemainingPhotosScreen.RemainingPhotosScreen
 import com.udyata.imagepicker.theme.ComposeCropperTheme
 import com.udyata.imagepicker.utils.newImageLoader
@@ -67,6 +71,20 @@ class GalleryPickerActivity : ComponentActivity() {
                     val getPhotosUseCase = AppModule.provideGetPhotosUseCase(photoRepository)
                     GalleryViewModel(getPhotosUseCase)
                 }
+                val albumViewModel = remember {
+                    val contentResolver = AppModule.provideContentResolver(context)
+                    val photoRepository = AppModule.providePhotoRepository(contentResolver)
+                    val getAlbumsUseCase = AppModule.provideGetAlbumsUseCase(photoRepository)
+                    GalleryAlbumViewModel(getAlbumsUseCase)
+                }
+
+                val remainingAlbumViewModel = remember {
+                    val contentResolver = AppModule.provideContentResolver(context)
+                    val photoRepository = AppModule.providePhotoRepository(contentResolver)
+                    val getAlbumsUseCase = AppModule.provideGetAlbumsUseCase(photoRepository)
+                    RemainingAlbumViewModel(getAlbumsUseCase)
+                }
+
 
                 // UI content
                 NavHost(
@@ -74,6 +92,7 @@ class GalleryPickerActivity : ComponentActivity() {
                     startDestination = Screen.GalleryPhotoScreen.route
                 ) {
                     composable(Screen.GalleryPhotoScreen.route) {
+
                         GalleryPhotoScreen(
                             viewModel = viewModel,
                             onSelectImage = { uri ->
@@ -86,6 +105,14 @@ class GalleryPickerActivity : ComponentActivity() {
                             isMultiSelection = isMultiSelection,
                             navController = navController
                         )
+                    }
+
+                    composable(Screen.GalleryAlbumScreen.route) {
+                        GalleryAlbumScreen(
+                            viewModel = albumViewModel,
+                            navController = navController
+                        )
+
                     }
 
                     composable(
@@ -108,18 +135,26 @@ class GalleryPickerActivity : ComponentActivity() {
                             navController = navController
                         )
                     }
+
+                    composable(
+                        route = Screen.RemainingAlbumsScreen.route,
+                        arguments = listOf(
+                            navArgument("albumId") { type = NavType.StringType },
+                            navArgument("albumName") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val albumId = backStackEntry.arguments?.getString("albumId") ?: ""
+                        val albumName = backStackEntry.arguments?.getString("albumName") ?: ""
+                        RemainingAlbumsScreen(
+                            viewModel = remainingAlbumViewModel,
+                            albumId = albumId,
+                            albumName = albumName,
+                            navController = navController
+                        )
+                    }
+
                 }
-//                GalleryPhotoScreen(
-//                    viewModel = viewModel,
-//                    onSelectImage = { uri ->
-//                        val intent =
-//                            Intent(context, EditActivity::class.java).apply {
-//                                putExtra("imageUri", uri.toString())
-//                            }
-//                        editActivityLauncher.launch(intent)
-//                    },
-//                    isMultiSelection=isMultiSelection
-//                )
+
             }
         }
     }
