@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-//    alias(libs.plugins.compose.compiler)
     id("kotlin-parcelize")
     id("maven-publish")
 }
